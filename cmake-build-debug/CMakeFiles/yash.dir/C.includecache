@@ -1,0 +1,32 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/matt/CLionProjects/SystemsProjects/yash/helpers.h
+stdlib.h
+-
+stdio.h
+-
+string.h
+-
+
+/home/matt/CLionProjects/SystemsProjects/yash/main.c
+stdlib.h
+-
+stdio.h
+-
+sys/wait.h
+-
+unistd.h
+-
+string.h
+-
+helpers.h
+/home/matt/CLionProjects/SystemsProjects/yash/helpers.h
+fcntl.h
+-
+

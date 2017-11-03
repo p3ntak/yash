@@ -1,0 +1,8 @@
+a.out
+cmake-build-debug
+CMakeLists.txt
+helpers.h
+main.c
+README.txt
+test.txt
+workflow
