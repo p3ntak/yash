@@ -17,7 +17,7 @@ static void sig_tstp(int signo);
 static void sig_handler(int signo);
 
 // Global Vars
-int pid_ch1 = 99, pid_ch2 = 99, pid = 99;
+int pid_ch1 = -1, pid_ch2 = -1, pid = -1;
 int activeJobsSize; //goes up and down as jobs finish
 struct Job *jobs;
 int *pactiveJobsSize = &activeJobsSize;
@@ -388,6 +388,8 @@ int startPipedOperation(char **args1, char **args2)
 
 static void sig_int(int signo)
 {
+    if(pid_ch1 == -1)
+        return;
     signal(SIGINT, sig_int);
     kill(pid_ch1, SIGINT);
 }
@@ -395,6 +397,8 @@ static void sig_int(int signo)
 
 static void sig_tstp(int signo)
 {
+    if(pid_ch1 == -1)
+        return;
     signal(SIGTSTP, sig_tstp);
     kill(pid_ch1, SIGTSTP);
 }
