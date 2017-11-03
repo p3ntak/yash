@@ -208,7 +208,7 @@
       <workItem from="1508018503319" duration="953000" />
       <workItem from="1509681101897" duration="4354000" />
       <workItem from="1509685726482" duration="2578000" />
-      <workItem from="1509689943090" duration="220000" />
+      <workItem from="1509689943090" duration="311000" />
     </task>
     <task id="LOCAL-00001" summary="single and piped commands running as expected">
       <created>1504929176029</created>
@@ -263,7 +263,7 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="161662000" />
+    <option name="totallyTimeSpent" value="161753000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="65" y="24" width="928" height="1056" extended-state="4" />

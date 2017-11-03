@@ -292,10 +292,11 @@ int startPipedOperation(char **args1, char **args2)
                 }
                 if(WIFEXITED(status))
                 {
-//                    removeFromJobs(jobs, pid_ch1, pactiveJobsSize);
+                    removeFromJobs(jobs, pid_ch1, pactiveJobsSize);
                     count++;
                 } else if(WIFSIGNALED(status))
                 {
+                    removeFromJobs(jobs, pid_ch1, pactiveJobsSize);
                     count++;
                 } else if(WIFSTOPPED(status))
                 {
