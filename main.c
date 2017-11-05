@@ -652,6 +652,7 @@ void yash_fg(struct Job *jobs, int activeJobSize, int *pActiveJobSize)
         kill(pid_ch1, SIGCONT);
     }
     pid = waitpid(-1, &status, WUNTRACED | WCONTINUED);
+    fflush(stdout);
     if (WIFCONTINUED(status)) {
         pid = waitpid(-1, &status, WUNTRACED | WCONTINUED);
     }
