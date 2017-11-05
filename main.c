@@ -236,7 +236,6 @@ int startOperation(char **args)
         // Parent process
         startJobsPID(jobs, pid_ch1, activeJobsSize);
         // change sig catchers back to not ignore signals
-        printf("just forked process with pid %d\n",pid_ch1);
         pid = waitpid(-1, &status, WUNTRACED | WCONTINUED);
         if (pid == -1) {
             perror("waitpid");
@@ -392,7 +391,7 @@ static void sig_int(int signo)
     if(pid_ch1 == -1)
         return;
     signal(SIGINT, sig_int);
-    kill(pid_ch1, SIGINT);
+    kill(-pid_ch1, SIGINT);
 }
 
 
@@ -402,6 +401,7 @@ static void sig_tstp(int signo)
         return;
     signal(SIGTSTP, sig_tstp);
     kill(-pid_ch1, SIGTSTP);
+    kill(pid_ch1, SIGTSTP);
 }
 
 static void proc_exit(int signo)
@@ -625,8 +625,7 @@ void yash_fg(struct Job *jobs, int activeJobSize, int *pActiveJobSize)
         return;
     }
 
-    int pid = jobs[activeJobSize - 1].pid_no;
-    printf("last job %d\n",jobs[activeJobSize - 1].pid_no);
+    pid_ch1 = jobs[activeJobSize - 1].pid_no;
     setJobStatus(jobs, pid, activeJobSize, RUNNING);
     for(int i=0; i<activeJobSize; i++)
     {
@@ -637,29 +636,31 @@ void yash_fg(struct Job *jobs, int activeJobSize, int *pActiveJobSize)
             runningStr = "Stopped";
         if(i == activeJobSize-1)
         {
-            if(jobs[i].pid_no == pid)
+            if(jobs[i].pid_no == pid_ch1)
                 printf("[%d] + %s    %s\n", jobs[i].task_no, runningStr , jobs[i].line);
 
         } else
         {
-            if(jobs[i].pid_no == pid)
+            if(jobs[i].pid_no == pid_ch1)
                 printf("[%d] - %s    %s\n", jobs[i].task_no, runningStr, jobs[i].line);
         }
     }
-    kill(pid, SIGCONT);
-    printf("sending sigcont to pid %d\n", pid);
+    char *line_cpy = strdup(jobs[activeJobSize -1].line);
+    if(pipeQty(parseLine(line_cpy)) > 0) {
+        kill(-pid_ch1, SIGCONT);
+    } else {
+        kill(pid_ch1, SIGCONT);
+    }
     pid = waitpid(-1, &status, WUNTRACED | WCONTINUED);
-    if(WIFCONTINUED(status)){
+    if (WIFCONTINUED(status)) {
         pid = waitpid(-1, &status, WUNTRACED | WCONTINUED);
     }
     if (pid == -1) {
         perror("waitpid");
     }
     if (WIFEXITED(status) || WIFSIGNALED(status)) {
-        printf("received finished or killed from pid %d\n", pid);
         removeFromJobs(jobs, pid, pActiveJobSize);
     } else if (WIFSTOPPED(status)) {
-        printf("received stopped from pid %d\n", pid);
         setJobStatus(jobs, pid, activeJobSize, STOPPED);
     }
     return;
@@ -669,6 +670,7 @@ void yash_fg(struct Job *jobs, int activeJobSize, int *pActiveJobSize)
 void yash_bg(struct Job *jobs, int activeJobSize)
 {
     int pid=0;
+    int made_it_to_end = 1;
 
     if(activeJobSize == 0)
     {
@@ -677,12 +679,17 @@ void yash_bg(struct Job *jobs, int activeJobSize)
     }
     for(int i=activeJobSize-1; i>=0; i--)
     {
-        if(pipeQty(parseLine(jobs[i].line)) != 0) continue;
-        if(jobs[i].runningStatus == STOPPED)
-        {
+        char *line_cpy = strdup(jobs[i].line);
+        int num_pipes = pipeQty(parseLine(line_cpy));
+        if((num_pipes == 0) && (jobs[i].runningStatus == STOPPED)) {
             pid = jobs[i].pid_no;
+            made_it_to_end = 0;
             break;
         }
+    }
+    if(made_it_to_end == 1){
+        printf("No jobs available to put in background.\n");
+        return;
     }
     setJobStatus(jobs, pid, activeJobSize, RUNNING);
     for(int i=0; i<activeJobSize; i++)
